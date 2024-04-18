@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { product } from '../../interfaces/product';
+import { ProductService } from '../../services/product.service';
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -10,9 +13,14 @@ import { product } from '../../interfaces/product';
 })
 export class AddEditProductComponent implements OnInit {
   form: FormGroup;
+  loading: boolean = false;
 
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder,
+
+    private _productService: ProductService,
+    private router: Router,
+    private toastr: ToastrService) {
     this.form = this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
@@ -28,8 +36,8 @@ export class AddEditProductComponent implements OnInit {
   }
 
   addproduct() {
-    console.log(this.form.value.name);
-    console.log(this.form.get('name')?.value);
+    // console.log(this.form.value.name);
+    // console.log(this.form.get('name')?.value);
 
     const product: product = {
 
@@ -39,13 +47,15 @@ export class AddEditProductComponent implements OnInit {
       stock: this.form.value.stock
 
     }
-
+    this.loading = true;
+    this._productService.saveProduct(product).subscribe(() => {
+      this.loading = false;
+      this.toastr.success(`El producto ${product.name} fue registrado con exito`, 'Prodcuto registrado');
+      this.router.navigate(['/']);
+    })
   }
-
-
-
-
 }
+
 
 
 

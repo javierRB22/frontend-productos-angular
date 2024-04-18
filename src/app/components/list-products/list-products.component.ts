@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { product } from '../../interfaces/product';
+import { ProductService } from '../../services/product.service';
+
+
+
 
 @Component({
   selector: 'app-list-products',
@@ -8,20 +13,36 @@ import { product } from '../../interfaces/product';
 })
 export class ListProductsComponent implements OnInit {
 
-  listproducts: product[] = [
+  listproducts: product[] = []
+  loading: boolean = false;
 
-    { id: 1, name: 'Coca-Cola', description:'bebida con azucar', price: 4, stock: 200},
-    {id: 2,  name: 'Corona', description:'bebida con alcohol', price: 5, stock: 300},
-    
-  ]
-
-    
-  
-
-
-  constructor(){}
+  constructor(private _productService: ProductService, private toastr: ToastrService) { }
 
   ngOnInit(): void {
-    
+    this.getListProducts();
+
+  }
+  getListProducts() {
+    this.loading = true;
+
+
+    this._productService.getListProducts().subscribe((data: product[]) => {
+      this.listproducts = data;
+      this.loading = false;
+
+    })
+
+  }
+
+  deleteproduct(id: number) {
+    this.loading = true;
+
+    this._productService.deleteProduct(id).subscribe(() => {
+      this.getListProducts();
+      this.toastr.warning('El producto fue eliminado con exito', 'Producto eliminado');
+
+
+    })
+
   }
 }

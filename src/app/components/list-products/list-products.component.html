@@ -1,11 +1,10 @@
-<div class="container">
+<app-progress-bar *ngIf="loading"></app-progress-bar>
+<div *ngIf="!loading" class="container">
 <div class="title">
     <h4>Listado de productos</h4>
-    <button type="button" class="btn btn-primary" routerLink="/add">agregar producto</button>
-    
+    <button type="button" class="btn btn-primary" routerLink="/add">agregar producto</button> 
 </div>
-
-<table class="table table-hover">
+<table *ngIf="listproducts.length > 0" class="table table-hover">
     <thead>
       <tr>
         <th scope="col">Nombre</th>
@@ -19,16 +18,15 @@
       <tr *ngFor="let item of listproducts" class="table-active">
         <td>{{item.name}}</td>
         <td>{{item.description}}</td>
-        <td>{{item.price}}</td>
+        <td>{{item.price | currency}}</td>
         <td>{{item.stock}}</td>
         <td>
-            <button routerLink="/edit/{{item.id}}" type="button" class="btn btn-info btn-sm">edit</button>
-            <button routerLink="/delete/{{item.id}}" type="button" class="btn btn-secondary btn-sm ms-3">delete</button>
 
+            <button routerLink="/edit/{{item.id}}" type="button" class="btn btn-info btn-sm">edit</button>
+            <button (click)="deleteproduct(item.id!)" type="button" class="btn btn-secondary btn-sm ms-3">delete</button>
         </td>
-        
       </tr>
     </tbody>
   </table>
-
+  <h5 *ngIf="listproducts.length == 0">No hay productos para mostrar</h5>
 </div>
