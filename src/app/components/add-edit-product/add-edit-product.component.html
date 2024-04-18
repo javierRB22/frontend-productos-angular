@@ -5,7 +5,7 @@
 
 
             <div class="card text-white bg-secondary mb-3">
-                <div class="card-header text-center">Agregar producto</div>
+                <div class="card-header text-center">{{operacion}} producto</div>
                 <div class="card-body">
                     <form [formGroup]="form" (ngSubmit)="addproduct()">
                         <input formControlName="name" type="text" class="form-control mt-2"

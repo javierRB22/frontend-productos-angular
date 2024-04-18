@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { product } from '../../interfaces/product';
 import { ProductService } from '../../services/product.service';
 import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 
 @Component({
@@ -14,13 +14,16 @@ import { Router } from '@angular/router';
 export class AddEditProductComponent implements OnInit {
   form: FormGroup;
   loading: boolean = false;
+  id: number;
+  operacion: string = 'agregar';
 
 
   constructor(private fb: FormBuilder,
 
     private _productService: ProductService,
     private router: Router,
-    private toastr: ToastrService) {
+    private toastr: ToastrService,
+    private aRouter: ActivatedRoute) {
     this.form = this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
@@ -28,10 +31,32 @@ export class AddEditProductComponent implements OnInit {
       stock: [null, Validators.required],
     })
 
+    this.id = Number(aRouter.snapshot.paramMap.get('id'));
 
   }
 
   ngOnInit(): void {
+
+    if (this.id != 0) {
+      // es editar
+      this.operacion = 'Editar ';
+      this.getproduct(this.id);
+
+    }
+
+  }
+
+  getproduct(id: number) {
+    this.loading = true;
+    this._productService.getproduct(id).subscribe((data: product) => {
+      this.loading = false;
+      this.form.setValue({
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        stock: data.stock
+      })
+    })
 
   }
 
@@ -48,11 +73,24 @@ export class AddEditProductComponent implements OnInit {
 
     }
     this.loading = true;
-    this._productService.saveProduct(product).subscribe(() => {
-      this.loading = false;
-      this.toastr.success(`El producto ${product.name} fue registrado con exito`, 'Prodcuto registrado');
-      this.router.navigate(['/']);
-    })
+    if (this.id !== 0) {
+      //editar
+
+      product.id = this.id;
+      this._productService.updateProduct(this.id, product).subscribe(() => {
+        this.toastr.info(`El producto ${product.name} fue actualizado con exito`, 'Producto actualizado');
+        this.loading = false;
+        this.router.navigate(['/']);
+
+      })
+    } else {
+      //agregar
+      this._productService.saveProduct(product).subscribe(() => {
+        this.toastr.success(`El producto ${product.name} fue registrado con exito`, 'Prodcuto registrado');
+        this.loading = false;
+        this.router.navigate(['/']);
+      })
+    }
   }
 }
 
